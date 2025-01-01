@@ -108,7 +108,7 @@
       border-radius: 6px;
       border: none;
       margin-bottom: 20px;
-      background-color: #ffffff;
+      background-color: #7a7a7a;
       box-sizing: border-box; /* Ensure padding and border are included in the width */
     }
 
@@ -245,10 +245,14 @@
     function updateMetrics(ping, isTimeout = false) {
       const maxSize = parseInt(document.getElementById('maxGraphSize').value, 10);
       pings.push(ping);
-      totalPing += ping;
+      if (!isTimeout) {
+        totalPing += ping;
+      }
       if (pings.length > maxSize) {
         const removedPing = pings.shift();
-        totalPing -= removedPing;
+        if (removedPing !== 0) {
+          totalPing -= removedPing;
+        }
         pingChart.data.labels.shift();
         pingChart.data.datasets[0].data.shift();
       }
@@ -256,7 +260,9 @@
 
       minPing = Math.min(minPing, ping);
       maxPing = Math.max(maxPing, ping);
-      recvPackets++;
+      if (!isTimeout) {
+        recvPackets++;
+      }
 
       if (len > 1) {
         const jitter = Math.abs(ping - pings[len - 2]);
@@ -276,7 +282,7 @@
       });
       pingChart.update();
 
-      const avgPing = (totalPing / len).toFixed(2);
+      const avgPing = (totalPing / recvPackets).toFixed(2);
       const avgJitter = (totalJitter / jitters.length).toFixed(2);
       const loss = (((sentPackets - recvPackets) / sentPackets) * 100).toFixed(2);
 
